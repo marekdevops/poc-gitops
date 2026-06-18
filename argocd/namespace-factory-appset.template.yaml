@@ -1,0 +1,41 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: poc-namespace-factory
+  namespace: openshift-gitops
+spec:
+  generators:
+    - matrix:
+        generators:
+          - clusterDecisionResource:
+              configMapRef: __PLACEMENT_CONFIGMAP__
+              labelSelector:
+                matchLabels:
+                  cluster.open-cluster-management.io/placement: poc-placement
+          - git:
+              repoURL: __GIT_REPO_URL__
+              revision: HEAD
+              directories:
+                - path: namespace-factory/values/*/*
+  template:
+    metadata:
+      name: "poc-ns-{{path.basenameNormalized}}"
+    spec:
+      project: default
+      source:
+        repoURL: __GIT_REPO_URL__
+        targetRevision: HEAD
+        path: namespace-factory
+        helm:
+          valueFiles:
+            - "values/{{path[0]}}/{{path[1]}}.yaml"
+            - "values/_defaults.yaml"
+      destination:
+        server: "{{server}}"
+        namespace: openshift-gitops
+      syncPolicy:
+        automated:
+          prune: false
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=false

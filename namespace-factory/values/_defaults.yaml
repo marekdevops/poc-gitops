@@ -1,0 +1,6 @@
+namespace:
+  labels:
+    managed-by: gitops-platform
+    poc: "true"
+  annotations:
+    created-by: gitops-poc

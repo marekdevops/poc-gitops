@@ -1,0 +1,13 @@
+namespace:
+  name: poc-team-alpha-dev
+  labels:
+    team: alpha
+    environment: dev
+    cost-center: "POC-0001"
+  annotations:
+    owner: "twoj.email@firma.pl"
+    purpose: "POC namespace-as-code"
+
+rbac:
+  devGroup: "poc-team-alpha-dev"
+  opsGroup: "poc-team-alpha-ops"

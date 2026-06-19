@@ -27,8 +27,10 @@ jakiegokolwiek skryptu - latwo pomylic kontekst miedzy hubem a klastrem testowym
   RoleBinding (dev/ops per grupa)
 - `argocd/` — manifesty integracji ACM (Placement, ManagedClusterSetBinding,
   GitOpsCluster) + szablon ApplicationSet
-- `scripts/00-03,99-*.sh` — bootstrap w kolejnosci numerycznej, kazdy
-  idempotentny (`set -euo pipefail`, sprawdza stan przed dzialaniem)
+- `scripts/00-04,99-*.sh` — bootstrap w kolejnosci numerycznej, kazdy
+  idempotentny (`set -euo pipefail`, sprawdza stan przed dzialaniem).
+  `04-trust-gitlab-ca.sh` jest opcjonalny (tylko gdy GitLab ma cert z
+  wewnetrznego CA) i odpalany na ACM Hub.
 - `README.md` — pelna instrukcja krok po kroku + sekcja troubleshooting,
   TRAKTUJ JAKO PRAWDE - jesli cos jest tam nieaktualne, popraw README,
   nie twórz równoległej dokumentacji
@@ -54,6 +56,15 @@ jakiegokolwiek skryptu - latwo pomylic kontekst miedzy hubem a klastrem testowym
    env), a nazwe Application bierzemy z tresci pliku `{{namespace.name}}` zeby
    uniknac kolizji `poc-ns-dev`. Generator `files` parsuje TRESC pliku values
    jako parametry szablonu, dlatego `{{namespace.name}}` jest dostepny.
+4. ArgoCD + firmowy GitLab z wewnetrznym CA: ApplicationSet stworzy sie, ale
+   w jego statusie bedzie `x509: certificate signed by unknown authority` i NIE
+   wygeneruje Application (repo-server nie sklonuje repo). Fix: zaufaj CA przez
+   `04-trust-gitlab-ca.sh` (NIGDY insecure/skip-verify - czerwona flaga
+   audytowa). PULAPKA wewnatrz: operator wypelnia ConfigMap argocd-tls-certs-cm
+   z `spec.tls.initialCerts` TYLKO przy tworzeniu CM; gdy CM juz istnieje, wpis
+   jest ignorowany - dlatego skrypt kasuje CM, by operator odtworzyl go z
+   aktualnym initialCerts, i restartuje repo-server. Cert CA NIE jest commitowany
+   (wzorzec *-ca.pem/*.crt w .gitignore - moze ujawniac wewnetrzne PKI/hosty).
 
 ## Status (aktualizuj te sekcje po kazdej sesji roboczej)
 - [x] 00-install-gitops-operator.sh — wykonany na ACM Hub, OK

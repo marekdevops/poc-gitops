@@ -55,6 +55,24 @@ Wciaz na ACM Hub:
 ./scripts/02-deploy-namespace-factory.sh https://git.twojafirma.pl/poc-gitops.git
 ```
 
+> Jesli Twoj GitLab uzywa certyfikatu podpisanego przez wewnetrzne CA, ArgoCD
+> zglosi `x509: certificate signed by unknown authority` w statusie
+> ApplicationSet i nie wygeneruje Application. Dodaj firmowe CA do zaufania
+> ArgoCD (NIE wylaczaj weryfikacji TLS) - patrz krok 3a.
+
+### 3a. (opcjonalnie) Zaufaj firmowemu CA GitLaba
+
+Tylko jesli w kroku 3 pojawil sie blad `x509`. Pobierz lancuch CA do
+lokalnego pliku (NIE commituj go - jest w .gitignore), potem na ACM Hub:
+
+```bash
+./scripts/04-trust-gitlab-ca.sh gitlab.twojafirma.pl ./gitlab-ca.pem
+```
+
+Skrypt wpisuje CA do `spec.tls.initialCerts` instancji ArgoCD, odswieza
+ConfigMap `argocd-tls-certs-cm` i restartuje repo-server. Po tym blad x509
+w statusie ApplicationSet powinien zniknac.
+
 ### 4. Stworz grupy testowe na klastrze TESTOWYM
 
 Przelogowanie na klaster testowy (nie hub):

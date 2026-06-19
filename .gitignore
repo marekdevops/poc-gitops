@@ -1,3 +1,8 @@
 *.bak
 *.tmp
 .DS_Store
+
+# Certyfikaty CA firmowego GitLaba - specyficzne dla srodowiska, moga ujawniac
+# wewnetrzne PKI/hosty. NIE commitowac (patrz scripts/04-trust-gitlab-ca.sh).
+*-ca.pem
+*.crt

@@ -126,8 +126,11 @@ git log --oneline namespace-factory/values/poc-team-alpha/dev.yaml
 
 - ApplicationSet nie generuje Application -> sprawdz
   `oc get applicationset poc-namespace-factory -n openshift-gitops -o yaml`
-  pod katem bledow w sekcji status. Czesty problem: zly URL repo lub
-  repo niedostepne siecio z klastra ACM Hub.
+  pod katem bledow w sekcji status. Czeste problemy: zly URL repo lub
+  repo niedostepne siecio z klastra ACM Hub. UWAGA: generator git MUSI byc
+  typu `files` (`namespace-factory/values/*/*.yaml`), bo nasz layout to
+  env-jako-plik; generator `directories` matchuje tylko katalogi i po cichu
+  zwroci 0 Application (brak bledu, ale `oc get applications` puste).
 
 - Namespace nie ma RoleBinding -> sprawdz czy grupy z kroku 4 istnieja
   na WLASCIWYM klastrze (testowym, nie hub) - RBAC jest per-klaster.

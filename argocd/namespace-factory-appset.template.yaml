@@ -12,14 +12,25 @@ spec:
               labelSelector:
                 matchLabels:
                   cluster.open-cluster-management.io/placement: poc-placement
+          # Generator "files" (nie "directories"): nasz layout to env-jako-plik
+          # (values/<team>/<env>.yaml), a generator "directories" matchuje tylko
+          # KATALOGI - z plikami zwracalby 0 wynikow i ApplicationSet nie
+          # wygenerowalby zadnej Application. Generator "files" parsuje TRESC
+          # kazdego pliku values jako parametry szablonu (stad {{namespace.name}}).
+          # Glob */*.yaml lapie pliki w katalogach teamow; values/_defaults.yaml
+          # lezy bezposrednio w values/, wiec NIE jest tu lapany (dolaczamy go
+          # jawnie w valueFiles ponizej).
           - git:
               repoURL: __GIT_REPO_URL__
               revision: HEAD
-              directories:
-                - path: namespace-factory/values/*/*
+              files:
+                - path: "namespace-factory/values/*/*.yaml"
   template:
     metadata:
-      name: "poc-ns-{{path.basenameNormalized}}"
+      # Nazwa z TRESCI pliku values -> unikalna per namespace
+      # (poc-ns-poc-team-alpha-dev). Wczesniej basenameNormalized dawal
+      # kolizje (kazdy env "dev" -> ta sama nazwa "poc-ns-dev").
+      name: "poc-ns-{{namespace.name}}"
     spec:
       project: default
       source:
@@ -27,8 +38,13 @@ spec:
         targetRevision: HEAD
         path: namespace-factory
         helm:
+          # Sciezki wzgledem korzenia chartu (path: namespace-factory powyzej).
+          # path.basename = katalog teamu (poc-team-alpha), path.filename =
+          # plik env z rozszerzeniem (dev.yaml). Wczesniej path[0]/path[1] braly
+          # segmenty CALEJ sciezki od korzenia repo (namespace-factory/values),
+          # wiec valueFiles wskazywalyby zle pliki.
           valueFiles:
-            - "values/{{path[0]}}/{{path[1]}}.yaml"
+            - "values/{{path.basename}}/{{path.filename}}"
             - "values/_defaults.yaml"
       destination:
         server: "{{server}}"

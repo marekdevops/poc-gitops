@@ -43,6 +43,17 @@ jakiegokolwiek skryptu - latwo pomylic kontekst miedzy hubem a klastrem testowym
 2. RBAC jest per-klaster: grupy stworzone `oc adm groups` na hubie != grupy
    na klastrze testowym. Skrypt 03 MUSI byc odpalony na klastrze testowym,
    nie na hubie.
+3. Generator `git` w ApplicationSet: nasz layout to env-jako-PLIK
+   (`values/<team>/<env>.yaml`), wiec MUSI byc `git: files` z globem
+   `namespace-factory/values/*/*.yaml`, NIE `git: directories`. Generator
+   `directories` matchuje tylko katalogi -> z plikami zwraca 0 wynikow i
+   ApplicationSet po cichu nie generuje zadnej Application (objaw: brak bledu,
+   ale `oc get applications` puste). Dodatkowo `path[0]/path[1]` w szablonie to
+   segmenty CALEJ sciezki od korzenia repo (namespace-factory/values), NIE
+   team/env - uzywamy `path.basename` (katalog teamu) i `path.filename` (plik
+   env), a nazwe Application bierzemy z tresci pliku `{{namespace.name}}` zeby
+   uniknac kolizji `poc-ns-dev`. Generator `files` parsuje TRESC pliku values
+   jako parametry szablonu, dlatego `{{namespace.name}}` jest dostepny.
 
 ## Status (aktualizuj te sekcje po kazdej sesji roboczej)
 - [x] 00-install-gitops-operator.sh — wykonany na ACM Hub, OK

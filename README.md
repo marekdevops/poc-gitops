@@ -114,6 +114,11 @@ git log --oneline namespace-factory/values/poc-team-alpha/dev.yaml
 
 ## Troubleshooting
 
+- Skrypt 02 szuka ConfigMap o nazwie `acm-placement` (NIE `poc-placement`)
+  - to jest stały, generyczny ConfigMap tworzony raz przez
+  multicluster-integrations, niezależny od nazwy Twojego Placement. Jeśli
+  go nie ma, sprawdź czy GitOpsCluster z kroku 01 zaaplikował się poprawnie.
+
 - `argocd cluster list` nie widzi klastra testowego -> sprawdz
   `oc get secrets -n openshift-gitops -l apps.open-cluster-management.io/cluster-name`
   na hubie. Brak secreta = GitOpsCluster/Placement/ClusterSetBinding
